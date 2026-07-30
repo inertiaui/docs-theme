@@ -12,8 +12,8 @@
 
 :root {
     /* warning / tip / danger - brand-tinted (light defaults; .dark overrides) */
-    --warning: oklch(0.55 0.13 65);
-    --warning-soft: oklch(0.94 0.04 65);
+    --warning: oklch(0.5 0.1 75);
+    --warning-soft: oklch(0.97 0.025 82);
     --danger: oklch(0.5 0.16 25);
     --danger-soft: oklch(0.94 0.04 25);
 
@@ -93,8 +93,8 @@
     --vp-custom-block-info-border: var(--rule-color);
 
     --vp-custom-block-warning-bg: var(--warning-soft);
-    --vp-custom-block-warning-text: oklch(0.42 0.1 65);
-    --vp-custom-block-warning-border: oklch(0.85 0.05 65);
+    --vp-custom-block-warning-text: oklch(0.36 0.08 70);
+    --vp-custom-block-warning-border: oklch(0.86 0.045 78);
 
     --vp-custom-block-danger-bg: var(--danger-soft);
     --vp-custom-block-danger-text: oklch(0.42 0.12 25);
@@ -129,8 +129,8 @@
     --accent-color-faint: #27272a;
     --shiki-mode-color: var(--shiki-dark);
 
-    --warning: oklch(0.78 0.13 65);
-    --warning-soft: oklch(0.3 0.06 65);
+    --warning: oklch(0.78 0.11 75);
+    --warning-soft: oklch(0.28 0.045 75);
     --danger: oklch(0.78 0.16 25);
     --danger-soft: oklch(0.3 0.08 25);
 
@@ -143,9 +143,9 @@
     --vp-custom-block-info-text: var(--on-surface-soft);
     --vp-custom-block-info-border: var(--rule-color);
 
-    --vp-custom-block-warning-bg: oklch(0.3 0.06 65);
-    --vp-custom-block-warning-text: oklch(0.85 0.1 65);
-    --vp-custom-block-warning-border: oklch(0.42 0.1 65);
+    --vp-custom-block-warning-bg: var(--warning-soft);
+    --vp-custom-block-warning-text: oklch(0.86 0.08 78);
+    --vp-custom-block-warning-border: oklch(0.43 0.07 78);
 
     --vp-custom-block-danger-bg: oklch(0.3 0.08 25);
     --vp-custom-block-danger-text: oklch(0.85 0.1 25);
@@ -878,11 +878,22 @@ body {
 
 /* ===== custom blocks ===== */
 .vp-doc .custom-block {
-    border-radius: 14px;
-    padding: 16px 18px 14px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    padding: 12px 14px;
     border: 1px solid var(--rule-color);
     font-size: 14px;
-    margin: 22px 0;
+    margin: 18px 0;
+}
+
+.vp-doc .custom-block:not(.details) {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+}
+
+.vp-doc .custom-block + h2 {
+    margin-top: 20px;
 }
 
 .vp-doc .custom-block .custom-block-title {
@@ -890,8 +901,8 @@ body {
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin: 0 0 6px;
+    letter-spacing: 0.09em;
+    margin: 0 0 4px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -899,8 +910,8 @@ body {
 
 .vp-doc .custom-block p {
     font-size: 14px;
-    line-height: 1.6;
-    margin: 6px 0 0;
+    line-height: 1.55;
+    margin: 4px 0 0;
     color: inherit;
 }
 
@@ -922,9 +933,14 @@ body {
 }
 
 .vp-doc .custom-block.warning {
-    background: var(--warning-soft);
-    border-color: oklch(0.85 0.05 65);
-    color: oklch(0.42 0.1 65);
+    background: var(--vp-custom-block-warning-bg);
+    border-color: var(--vp-custom-block-warning-border);
+    color: var(--vp-custom-block-warning-text);
+}
+
+.vp-doc .custom-block.warning a,
+.vp-doc .custom-block.warning strong {
+    color: var(--vp-custom-block-warning-text);
 }
 
 .vp-doc .custom-block.danger {
@@ -949,45 +965,48 @@ body {
    paragraph and list rules above. Without it these borders, margins, and
    zebra stripes stack on top of the component's own chrome inside live
    examples. */
-.vp-doc table:not(:where(.vp-raw *)) {
-    display: table;
-    width: 100%;
+.VPDoc .vp-doc table:not(:where(.vp-raw *)) {
+    display: block;
+    width: max-content;
+    max-width: 100%;
     margin: 22px 0;
     border-collapse: separate;
     border-spacing: 0;
     border: 1px solid var(--rule-color);
-    border-radius: 14px;
-    overflow: hidden;
+    border-radius: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     font-size: 14px;
 }
 
-.vp-doc th:not(:where(.vp-raw *)) {
+.VPDoc .vp-doc th:not(:where(.vp-raw *)) {
     background: var(--surface-soft);
     font-family: var(--vp-font-family-base);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--on-surface-mute);
-    padding: 12px 16px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--on-surface);
+    padding: 10px 14px;
     text-align: left;
     border: 0;
     border-bottom: 1px solid var(--rule-color);
 }
 
-.vp-doc td:not(:where(.vp-raw *)) {
+.VPDoc .vp-doc td:not(:where(.vp-raw *)) {
     font-size: 14px;
     color: var(--on-surface-soft);
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 0;
     border-bottom: 1px solid var(--rule-color);
 }
 
-.vp-doc tr:last-child td:not(:where(.vp-raw *)) {
+.VPDoc .vp-doc tr:last-child td:not(:where(.vp-raw *)) {
     border-bottom: 0;
 }
 
-.vp-doc tr:nth-child(even) td:not(:where(.vp-raw *)) {
+.VPDoc .vp-doc tr:nth-child(even) td:not(:where(.vp-raw *)) {
     background: color-mix(in oklch, var(--surface-soft) 50%, var(--surface));
 }
 
@@ -1029,7 +1048,7 @@ body {
 .VPDocFooter .pager {
     flex: 1 1 0;
     min-width: 0;
-    display: flex;
+    display: flex !important;
 }
 
 .VPDocFooter .pager:nth-of-type(1) {
@@ -1040,82 +1059,93 @@ body {
     justify-content: flex-end;
 }
 
-.pager-link {
+.VPDocFooter .pager-link {
     border: 0 !important;
     background: transparent !important;
     padding: 8px 0 !important;
     border-radius: 0 !important;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-decoration: none !important;
     transition:
         opacity 150ms ease,
         transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
 
-.pager-link .desc {
-    display: none;
+.VPDocFooter .pager-link .desc {
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    color: var(--on-surface-mute) !important;
 }
 
-.pager-link .title {
-    color: var(--on-surface);
+.VPDocFooter .pager-link .title {
+    color: var(--accent-color) !important;
     font-weight: 600;
-    font-size: 17px;
-    letter-spacing: 0;
-    margin: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+    letter-spacing: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
     transition: color 150ms ease;
 }
 
-.pager-link.prev .title::before,
-.pager-link.next .title::before {
-    content: '‹';
+.VPDocFooter .pager-link.prev .title::before,
+.VPDocFooter .pager-link.next .title::after {
+    content: '\2190';
     width: auto;
     height: auto;
     background: none;
-    color: var(--on-surface-mute);
-    font-size: 22px;
+    color: currentColor;
+    font-size: 14px;
     font-weight: 500;
-    line-height: 0.82;
+    line-height: 1;
     position: relative;
+    top: 1px;
     transition:
         color 150ms ease,
         transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.pager-link.next .title {
-    flex-direction: row-reverse;
+.VPDocFooter .pager-link.next .title {
+    flex-direction: row !important;
 }
 
-.pager-link.next .title::before {
-    content: '›';
+.VPDocFooter .pager-link.next .title::before {
+    content: none !important;
 }
 
-.pager-link:hover .title {
+.VPDocFooter .pager-link.next .title::after {
+    content: '\2192';
+}
+
+.VPDocFooter .pager-link:hover .title {
     color: var(--accent-color);
 }
 
-.pager-link.prev:hover .title::before,
-.pager-link.next:hover .title::before {
+.VPDocFooter .pager-link.prev:hover .title::before,
+.VPDocFooter .pager-link.next:hover .title::after {
     color: var(--accent-color);
 }
 
-.pager-link.prev:hover .title::before {
+.VPDocFooter .pager-link.prev:hover .title::before {
     transform: translateX(-2px);
 }
 
-.pager-link.next:hover .title::before {
+.VPDocFooter .pager-link.next:hover .title::after {
     transform: translateX(2px);
 }
 
-.pager-link.next {
+.VPDocFooter .pager-link.next {
     text-align: right;
     align-items: flex-end;
 }
 
-.pager-link.prev {
+.VPDocFooter .pager-link.prev {
     text-align: left;
     align-items: flex-start;
 }
@@ -1131,20 +1161,24 @@ body {
         gap: 16px !important;
     }
 
-    .pager-link {
+    .VPDocFooter .pager-link {
         padding: 4px 0 !important;
-        gap: 0;
+        gap: 2px !important;
     }
 
-    .pager-link .title {
-        font-size: 14px;
-        font-weight: 500;
-        gap: 6px;
+    .VPDocFooter .pager-link .desc {
+        font-size: 12px !important;
     }
 
-    .pager-link.prev .title::before,
-    .pager-link.next .title::before {
-        font-size: 17px;
+    .VPDocFooter .pager-link .title {
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        gap: 6px !important;
+    }
+
+    .VPDocFooter .pager-link.prev .title::before,
+    .VPDocFooter .pager-link.next .title::after {
+        font-size: 13px;
     }
 }
 

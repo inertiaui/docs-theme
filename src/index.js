@@ -126,6 +126,314 @@ export function createInertiaUiDocsConfig({ productSlug, githubLink } = {}) {
     }
 }
 
+export function extractInertiaUiDescription(markdown, fallback, { maxLength = 158 } = {}) {
+    let raw = markdown.replace(/^---[\s\S]*?---\s*/, '')
+    const lines = raw.split('\n')
+    let paragraph = ''
+    let inFence = false
+    let inVueBlock = false
+
+    for (const line of lines) {
+        const trimmed = line.trim()
+
+        if (trimmed.startsWith('```')) {
+            inFence = !inFence
+            continue
+        }
+
+        if (trimmed.startsWith('<script')) {
+            inVueBlock = true
+            continue
+        }
+
+        if (inVueBlock) {
+            if (trimmed.startsWith('</script>')) {
+                inVueBlock = false
+            }
+            continue
+        }
+
+        if (inFence) continue
+        if (!trimmed) continue
+        if (trimmed.startsWith('#')) continue
+        if (trimmed.startsWith('::')) continue
+        if (trimmed.startsWith('|')) continue
+        if (trimmed.startsWith('- ')) continue
+        if (trimmed.startsWith('* ')) continue
+        if (trimmed.startsWith('<')) continue
+
+        paragraph = trimmed
+        break
+    }
+
+    if (!paragraph) {
+        return fallback
+    }
+
+    paragraph = paragraph
+        .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/_([^_]+)_/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/<[^>]+>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+
+    if (paragraph.length > maxLength) {
+        paragraph = `${paragraph.slice(0, maxLength - 3).trimEnd()}...`
+    }
+
+    return paragraph
+}
+
+export function inertiaUiSlugFor(relativePath) {
+    return relativePath
+        .replace(/\/index\.md$/, '')
+        .replace(/index\.md$/, '')
+        .replace(/\.md$/, '')
+}
+
+export function inertiaUiUrlFor(siteUrl, slug) {
+    return slug ? `${siteUrl}/${slug}` : siteUrl
+}
+
+export function inertiaUiFullTitle(pageTitle, siteTitleSuffix, { separator = ' - ' } = {}) {
+    const title = pageTitle.trim()
+
+    if (!title || title === siteTitleSuffix) {
+        return siteTitleSuffix
+    }
+
+    return `${title}${separator}${siteTitleSuffix}`
+}
+
+function resolveSeoValue(value, context) {
+    return typeof value === 'function' ? value(context) : value
+}
+
+function withJsonLdDefaults(entity, defaults) {
+    return {
+        '@context': 'https://schema.org',
+        ...defaults,
+        ...entity,
+    }
+}
+
+export function createInertiaUiSeoTransform({
+    siteName,
+    siteTitleSuffix,
+    siteUrl,
+    siteBaseUrl,
+    siteDescription,
+    ogImage,
+    authorName = 'Pascal Baljet',
+    authorUrl = 'https://pascalbaljet.dev',
+    organization = 'Inertia UI',
+    organizationUrl = 'https://inertiaui.com',
+    articleDependencies,
+    descriptionForPage,
+    sectionFor,
+    softwareApplication,
+    installationHowTo,
+    homeSlug = '',
+    installationSlug = 'installation',
+    titleSeparator = ' - ',
+} = {}) {
+    const requiredOptions = { siteName, siteTitleSuffix, siteUrl, siteBaseUrl, siteDescription, ogImage }
+    const missingOption = Object.entries(requiredOptions).find(([, value]) => !value)?.[0]
+
+    if (missingOption) {
+        throw new Error(`createInertiaUiSeoTransform expects ${missingOption}.`)
+    }
+
+    return function transformPageData(pageData) {
+        const slug = inertiaUiSlugFor(pageData.relativePath)
+        const canonicalUrl = inertiaUiUrlFor(siteUrl, slug)
+        const isHome = slug === homeSlug
+        const isInstallation = slug === installationSlug
+        const pageTitle = pageData.frontmatter.title || pageData.title || (isHome ? siteTitleSuffix : 'Documentation')
+        const pageDescription = pageData.frontmatter.description || descriptionForPage?.(pageData.relativePath, siteDescription) || siteDescription
+        const renderedTitle = inertiaUiFullTitle(pageTitle, siteTitleSuffix, { separator: titleSeparator })
+
+        pageData.description = pageDescription
+
+        pageData.frontmatter.head ??= []
+        const head = pageData.frontmatter.head
+
+        head.push(['link', { rel: 'canonical', href: canonicalUrl }])
+        head.push(['meta', { name: 'description', content: pageDescription }])
+        head.push(['meta', { property: 'og:title', content: renderedTitle }])
+        head.push(['meta', { property: 'og:description', content: pageDescription }])
+        head.push(['meta', { property: 'og:url', content: canonicalUrl }])
+        head.push(['meta', { property: 'og:type', content: isHome ? 'website' : 'article' }])
+
+        const ids = {
+            person: `${authorUrl}/#pascal`,
+            organization: `${organizationUrl}/#organization`,
+            software: `${siteBaseUrl}/#software`,
+            website: `${siteUrl}/#website`,
+        }
+
+        const context = {
+            slug,
+            canonicalUrl,
+            isHome,
+            isInstallation,
+            pageTitle,
+            pageDescription,
+            renderedTitle,
+            ids,
+        }
+
+        const section = sectionFor?.(slug)
+
+        if (!isHome) {
+            head.push(['meta', { property: 'article:author', content: authorName }])
+            head.push(['meta', { property: 'article:section', content: section?.name ?? 'Documentation' }])
+        }
+
+        head.push(['meta', { name: 'twitter:title', content: renderedTitle }])
+        head.push(['meta', { name: 'twitter:description', content: pageDescription }])
+        head.push(['meta', { name: 'twitter:url', content: canonicalUrl }])
+
+        const personEntity = {
+            '@type': 'Person',
+            '@id': ids.person,
+            name: authorName,
+            url: authorUrl,
+            worksFor: { '@id': ids.organization },
+            sameAs: [
+                'https://twitter.com/pascalbaljet',
+                'https://x.com/pascalbaljet',
+                'https://github.com/pascalbaljet',
+                'https://bsky.app/profile/pascalbaljet.bsky.social',
+                'https://youtube.com/pascalbaljet',
+                authorUrl,
+            ],
+        }
+
+        const organizationEntity = {
+            '@type': 'Organization',
+            '@id': ids.organization,
+            name: organization,
+            url: organizationUrl,
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://inertiaui.com/favicon-96x96.png',
+            },
+            founder: { '@id': ids.person },
+            sameAs: ['https://github.com/inertiaui', 'https://twitter.com/pascalbaljet'],
+        }
+
+        if (!isHome) {
+            const techArticle = {
+                '@type': 'TechArticle',
+                headline: pageTitle,
+                name: pageTitle,
+                description: pageDescription,
+                url: canonicalUrl,
+                inLanguage: 'en-US',
+                author: { '@id': ids.person },
+                publisher: { '@id': ids.organization },
+                about: { '@id': ids.software },
+                isPartOf: { '@id': ids.website },
+                mainEntityOfPage: {
+                    '@type': 'WebPage',
+                    '@id': canonicalUrl,
+                },
+                proficiencyLevel: 'Intermediate',
+                dependencies: articleDependencies,
+                image: ogImage,
+            }
+            head.push(['script', { type: 'application/ld+json' }, JSON.stringify(withJsonLdDefaults(techArticle))])
+        }
+
+        if (isHome) {
+            const website = {
+                '@type': 'WebSite',
+                '@id': ids.website,
+                name: siteName,
+                url: `${siteUrl}/`,
+                description: siteDescription,
+                inLanguage: 'en-US',
+                publisher: { '@id': ids.organization },
+                about: { '@id': ids.software },
+                potentialAction: {
+                    '@type': 'SearchAction',
+                    target: {
+                        '@type': 'EntryPoint',
+                        urlTemplate: `${siteUrl}/?q={search_term_string}`,
+                    },
+                    'query-input': 'required name=search_term_string',
+                },
+            }
+            head.push(['script', { type: 'application/ld+json' }, JSON.stringify(withJsonLdDefaults(website))])
+            head.push(['script', { type: 'application/ld+json' }, JSON.stringify(withJsonLdDefaults(organizationEntity))])
+            head.push(['script', { type: 'application/ld+json' }, JSON.stringify(withJsonLdDefaults(personEntity))])
+
+            const software = resolveSeoValue(softwareApplication, context)
+
+            if (software) {
+                head.push([
+                    'script',
+                    { type: 'application/ld+json' },
+                    JSON.stringify(
+                        withJsonLdDefaults(software, {
+                            '@type': 'SoftwareApplication',
+                            '@id': ids.software,
+                        }),
+                    ),
+                ])
+            }
+        }
+
+        if (isInstallation) {
+            const howTo = resolveSeoValue(installationHowTo, context)
+
+            if (howTo) {
+                head.push([
+                    'script',
+                    { type: 'application/ld+json' },
+                    JSON.stringify(
+                        withJsonLdDefaults(howTo, {
+                            '@type': 'HowTo',
+                        }),
+                    ),
+                ])
+            }
+        }
+
+        if (!isHome) {
+            const breadcrumb = {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                    {
+                        '@type': 'ListItem',
+                        position: 1,
+                        name: 'Documentation',
+                        item: `${siteUrl}/introduction`,
+                    },
+                    {
+                        '@type': 'ListItem',
+                        position: 2,
+                        name: section?.name ?? 'Documentation',
+                        item: section?.url ?? `${siteUrl}/introduction`,
+                    },
+                    {
+                        '@type': 'ListItem',
+                        position: 3,
+                        name: pageTitle,
+                        item: canonicalUrl,
+                    },
+                ],
+            }
+            head.push(['script', { type: 'application/ld+json' }, JSON.stringify(withJsonLdDefaults(breadcrumb))])
+        }
+    }
+}
+
 export function setupCodeGroupTabs(storageKey, route) {
     if (typeof window === 'undefined' || !storageKey || !route) {
         return

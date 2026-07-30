@@ -17,8 +17,7 @@ Install it from the GitHub main branch:
 ```js
 import { createInertiaUiDocsConfig, createInertiaUiTheme, inertiaUiHead } from '@inertiaui/docs-theme'
 import '@inertiaui/docs-theme/base.css'
-import { defineConfig } from 'vitepress'
-import { useRoute } from 'vitepress'
+import { defineConfig, useRoute } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 
 const sharedConfig = createInertiaUiDocsConfig({ productSlug: 'inertia-product' })
@@ -54,6 +53,28 @@ export default createInertiaUiTheme(DefaultTheme, {
 
 Product docs keep their own title, description, nav, sidebar, SEO metadata, Vite
 plugins, redirects, and local components.
+
+SEO primitives are shared, but product data stays local:
+
+```js
+import { createInertiaUiSeoTransform, extractInertiaUiDescription } from '@inertiaui/docs-theme'
+
+const transformPageData = createInertiaUiSeoTransform({
+    siteName: 'Inertia Product Documentation',
+    siteTitleSuffix: 'Inertia Product',
+    siteUrl: 'https://inertiaui.com/inertia-product/docs',
+    siteBaseUrl: 'https://inertiaui.com/inertia-product',
+    siteDescription: 'Product docs description.',
+    ogImage: 'https://inertiaui.com/og/product.png',
+    articleDependencies: 'Laravel, Inertia.js, Vue or React',
+    descriptionForPage(relativePath, fallback) {
+        return extractInertiaUiDescription(readMarkdown(relativePath), fallback)
+    },
+    sectionFor(slug) {
+        return { name: 'Documentation', url: 'https://inertiaui.com/inertia-product/docs/introduction' }
+    },
+})
+```
 
 ## Build Redirects
 
