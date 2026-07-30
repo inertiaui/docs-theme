@@ -15,6 +15,32 @@ Install it from the GitHub main branch:
 ## Usage
 
 ```js
+import { createInertiaUiDocsConfig, createInertiaUiTheme, inertiaUiHead } from '@inertiaui/docs-theme'
+import '@inertiaui/docs-theme/base.css'
+import { defineConfig } from 'vitepress'
+import { useRoute } from 'vitepress'
+import DefaultTheme from 'vitepress/theme'
+
+const sharedConfig = createInertiaUiDocsConfig({ productSlug: 'inertia-product' })
+
+export default defineConfig({
+    ...sharedConfig,
+    title: 'Inertia Product Documentation',
+    head: inertiaUiHead([
+        ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ]),
+    themeConfig: {
+        ...sharedConfig.themeConfig,
+        siteTitle: 'Product Documentation',
+        nav: [],
+        sidebar: [],
+    },
+})
+```
+
+Product theme entry:
+
+```js
 import { createInertiaUiTheme } from '@inertiaui/docs-theme'
 import '@inertiaui/docs-theme/base.css'
 import { useRoute } from 'vitepress'
@@ -26,19 +52,8 @@ export default createInertiaUiTheme(DefaultTheme, {
 })
 ```
 
-Product docs keep their own nav, sidebar, VitePress config, and local components.
-
-Use the shared Markdown theme in the product VitePress config:
-
-```js
-import { inertiaUiMarkdownTheme } from '@inertiaui/docs-theme'
-
-export default defineConfig({
-    markdown: {
-        theme: inertiaUiMarkdownTheme,
-    },
-})
-```
+Product docs keep their own title, description, nav, sidebar, SEO metadata, Vite
+plugins, redirects, and local components.
 
 ## Build Redirects
 
