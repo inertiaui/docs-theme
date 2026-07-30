@@ -1,0 +1,19 @@
+{
+    "name": "@inertiaui/vitepress-theme",
+    "version": "0.1.0",
+    "type": "module",
+    "bin": {
+        "inertiaui-vitepress-build": "./src/build.js"
+    },
+    "files": [
+        "src"
+    ],
+    "exports": {
+        ".": "./src/index.js",
+        "./base.css": "./src/base.css"
+    },
+    "peerDependencies": {
+        "vitepress": "^1.6.4",
+        "vue": "^3.5.0"
+    }
+}
