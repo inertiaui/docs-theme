@@ -6,8 +6,8 @@
   stays white; code examples carry the quiet paper tone instead.
 
   All design tokens live in :root. No !important unless absolutely required
-  to break a VitePress default. Single Shiki theme defined in config.mjs so
-  syntax highlighting is part of the same palette as the rest of the page.
+  to break a VitePress default. Syntax highlighting lives in the shared
+  theme entry so each docs site uses the same palette.
 */
 
 :root {
@@ -315,13 +315,12 @@ body {
 
 /* ===== sidebar ===== */
 .VPSidebar {
-    background: linear-gradient(rgb(255 255 255 / 0.84), rgb(255 255 255 / 0.84)), var(--surface);
+    background: var(--surface);
     border-right: 1px solid var(--rule-color);
     /* Must clear the fixed navbar (var(--vp-nav-height) = 64px) plus extra
      breathing room. The default `padding-top: var(--vp-nav-height)` would
      bury the first item directly under the nav border. */
     padding-top: calc(var(--vp-nav-height) + 20px) !important;
-    backdrop-filter: blur(14px);
 }
 
 .dark .VPSidebar {

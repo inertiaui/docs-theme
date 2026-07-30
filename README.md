@@ -28,6 +28,18 @@ export default createInertiaUiTheme(DefaultTheme, {
 
 Product docs keep their own nav, sidebar, VitePress config, and local components.
 
+Use the shared Markdown theme in the product VitePress config:
+
+```js
+import { inertiaUiMarkdownTheme } from '@inertiaui/docs-theme'
+
+export default defineConfig({
+    markdown: {
+        theme: inertiaUiMarkdownTheme,
+    },
+})
+```
+
 ## Build Redirects
 
 ```json
