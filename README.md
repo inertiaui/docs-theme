@@ -1,4 +1,4 @@
-# Inertia UI VitePress Theme
+# Inertia UI Docs Theme
 
 Shared VitePress theme primitives for Inertia UI documentation sites.
 
@@ -7,7 +7,7 @@ Install it from the GitHub main branch:
 ```json
 {
     "dependencies": {
-        "@inertiaui/docs-theme": "github:inertiaui/docs-theme#main"
+        "@inertiaui/docs-theme": "git+https://github.com/inertiaui/docs-theme.git#main"
     }
 }
 ```

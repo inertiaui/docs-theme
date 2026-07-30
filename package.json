@@ -1,5 +1,5 @@
 {
-    "name": "@inertiaui/vitepress-theme",
+    "name": "@inertiaui/docs-theme",
     "version": "0.1.0",
     "type": "module",
     "bin": {
