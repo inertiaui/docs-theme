@@ -171,13 +171,49 @@ body {
 
 /* ===== top nav ===== */
 .VPNav {
-    border-bottom: 1px solid var(--rule-color);
+    border-bottom: 0 !important;
     background: color-mix(in oklch, var(--surface-card) 90%, transparent);
     backdrop-filter: blur(16px);
 }
 
+.VPNav::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    z-index: 1;
+    height: 1px;
+    background: var(--rule-color);
+    pointer-events: none;
+}
+
+.VPNav .VPFlyout {
+    position: relative;
+    z-index: 2;
+}
+
+.VPNav .VPFlyout .menu {
+    top: var(--vp-nav-height);
+    z-index: 2;
+}
+
+.VPNav .VPFlyout .VPMenu {
+    position: relative;
+    background-color: var(--surface-card);
+}
+
+.VPNavBar,
+.VPNavBar .divider {
+    border-bottom: 0 !important;
+}
+
 .VPNavBar .wrapper {
     border-bottom: 0 !important;
+}
+
+.VPNavBar .divider {
+    display: none !important;
 }
 
 .VPNavBar.has-sidebar .content {
@@ -196,7 +232,18 @@ body {
     font-size: 14px;
     letter-spacing: 0;
     color: var(--on-surface);
-    border-bottom: 0;
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+}
+
+.VPNavBar .title,
+.VPNavBar .title::after,
+.VPNavBarTitle {
+    box-shadow: none !important;
+}
+
+.VPNavBar .title {
+    border-bottom: 0 !important;
 }
 
 .VPNavBarTitle .logo {
@@ -299,6 +346,29 @@ body {
         min-height: calc(100vh - var(--vp-nav-height) - var(--vp-layout-top-height, 0px)) !important;
         min-height: calc(100dvh - var(--vp-nav-height) - var(--vp-layout-top-height, 0px)) !important;
         background: var(--surface-card);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1079px) {
+    .VPNavBar.screen-open {
+        border-bottom: 0 !important;
+    }
+
+    .VPNavBarMenu {
+        display: none !important;
+    }
+
+    .VPNavBarHamburger {
+        display: flex !important;
+    }
+
+    .VPNavScreen {
+        display: block !important;
+        top: calc(var(--vp-nav-height) + 1px) !important;
+        height: calc(100vh - var(--vp-nav-height) - 1px) !important;
+        height: calc(100dvh - var(--vp-nav-height) - 1px) !important;
+        min-height: calc(100vh - var(--vp-nav-height) - 1px) !important;
+        min-height: calc(100dvh - var(--vp-nav-height) - 1px) !important;
     }
 }
 
